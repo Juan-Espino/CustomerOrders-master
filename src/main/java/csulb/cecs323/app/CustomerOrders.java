@@ -15,12 +15,17 @@ package csulb.cecs323.app;
 // Import all of the entity classes that we have written for this application.
 import csulb.cecs323.model.*;
 
+import java.io.*;
+
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Scanner;
 import java.util.logging.Logger;
 
 /**
@@ -68,6 +73,7 @@ public class CustomerOrders {
    }
 
    public static void main(String[] args) {
+
       LOGGER.fine("Creating EntityManagerFactory and EntityManager");
       EntityManagerFactory factory = Persistence.createEntityManagerFactory("CustomerOrders");
       EntityManager manager = factory.createEntityManager();
@@ -112,9 +118,13 @@ public class CustomerOrders {
       customerOrders.createEntity(customers);
 
 
+
+
       // Commit the changes so that the new data persists and is visible to other users.
       tx.commit();
       LOGGER.fine("End of Transaction");
+
+      prompt(customers, products);
 
    } // End of the main method
 
@@ -159,4 +169,69 @@ public class CustomerOrders {
          return products.get(0);
       }
    }// End of the getStyle method
+
+   public static void prompt(List<Customers> customers, List<Products> products) {
+      boolean picking = true;
+      long inId = 0;
+      int currentCustomer;
+      String inUPC = null;
+      String currentProduct;
+      Scanner in = new Scanner(System.in);
+      System.out.println();
+      System.out.print("\n**********************************************");
+      System.out.print("************************************************\n");
+      while (picking) {
+         //show the customers in the database
+         for (int x = 0; x < customers.size(); x++) {
+            System.out.println(customers.get(x).toString());
+         }
+
+         //Ask user which customer he/she is
+
+         System.out.println("Enter your customer ID \n:");
+         try {
+            inId = in.nextLong();
+         }
+         catch (InputMismatchException e){
+            in.next();
+            System.out.println("That's not a number! Try again\n");
+            continue;
+         }
+         if (inId == (customers.get(0).getCustomer_id())) {
+            currentCustomer = 0;
+         } else if (inId == (customers.get(1).getCustomer_id())) {
+            currentCustomer = 1;
+         } else if (inId == (customers.get(2).getCustomer_id())) {
+            currentCustomer = 2;
+         }else{
+            System.out.println("Not in the data base.");
+            continue;
+         }
+
+         //show products then ask user which product they want
+
+         for (int x = 0; x < products.size(); x++) {
+            System.out.println(products.get(x).toString());
+         }
+         System.out.println("Enter your products UPC number \n:");
+         try {
+            inUPC = in.next();
+         }
+         catch (InputMismatchException e){
+            in.next();
+            System.out.println("That's not a UPC, Try again.\n");
+            continue;
+         }
+         if (inUPC.equals(products.get(0).getUPC())) {
+            currentProduct = products.get(0).getUPC();
+         } else if (inUPC.equals(products.get(1).getUPC())) {
+            currentProduct = products.get(1).getUPC();
+         } else if (inUPC.equals(products.get(2).getUPC())) {
+            currentProduct = products.get(2).getUPC();
+         }else{
+            System.out.println("Not in the data base. Try again\n");
+            continue;
+         }
+      }
+   }
 } // End of CustomerOrders class
